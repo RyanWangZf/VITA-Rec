@@ -86,7 +86,11 @@ class MF_CVIB(nn.Module):
                 pred_ul = self.sigmoid(pred_ul)
 
                 logp_hat = pred.log()
-                info_loss = self.alpha * torch.mean(-pred_ul * logp_hat - (1 - pred_ul) * logp_hat) + self.gamma* torch.mean(pred * logp_hat)
+
+                pred_avg = pred.mean()
+                pred_ul_avg = pred_ul.mean()
+
+                info_loss = self.alpha * (- pred_avg * pred_ul_avg.log() - (1-pred_avg) * (1-pred_ul_avg).log()) + self.gamma* torch.mean(pred * logp_hat)
 
                 loss = xent_loss + info_loss
 
@@ -997,8 +1001,9 @@ class NCF_CVIB(nn.Module):
                 pred_ul,_,_ = self.forward(x_sampled, True)
                 pred_ul = self.sigmoid(pred_ul)
                 
-                logp_hat = pred.log()
-                info_loss = self.alpha * torch.mean(-pred_ul * logp_hat - (1 - pred_ul) * logp_hat) + self.gamma* torch.mean(pred * logp_hat)
+                pred_avg = pred.mean()
+                pred_ul_avg = pred_ul.mean()
+                info_loss = self.alpha * (- pred_avg * pred_ul_avg.log() - (1-pred_avg) * (1-pred_ul_avg).log()) + self.gamma* torch.mean(pred * pred.log())
 
                 loss = xent_loss + info_loss
                 
